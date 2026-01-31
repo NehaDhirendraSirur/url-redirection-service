@@ -15,3 +15,16 @@ POST /api/urls
   "longUrl": "https://example.com/very/long/path",
   "expiryDays": 30
 }
+
+
+
+
+Example:
+Request:
+{
+  "originalUrl": "https://www.google.com"
+}
+Response:
+{
+  "shortUrl": "http://localhost:8080/r/abc123"
+}
