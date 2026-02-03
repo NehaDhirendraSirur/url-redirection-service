@@ -1,19 +1,26 @@
 spring:
   application:
     name: url-redirection-service
-
+    
   datasource:
     url: jdbc:postgresql://localhost:5432/url_redirection
     username: postgres
-    password: postgres
+    password: n12345
+    driver-class-name: org.postgresql.Driver
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update   
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+    jpa:
+      open-in-view: false
 
 server:
   port: 8080
+
+app:
+  base-url: http://localhost:8080

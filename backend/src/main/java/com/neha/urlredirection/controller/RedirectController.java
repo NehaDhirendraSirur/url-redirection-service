@@ -1,36 +1,39 @@
 package com.neha.urlredirection.controller;
 
-import com.neha.urlredirection.service.UrlRedirectionService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import com.neha.urlredirection.model.UrlMapping;
+import com.neha.urlredirection.repository.UrlMappingRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.io.IOException;
 
 @RestController
+@RequestMapping("/r")
 public class RedirectController {
 
-    private final UrlRedirectionService urlRedirectionService;
+    private final UrlMappingRepository repository;
 
-    public RedirectController(UrlRedirectionService urlRedirectionService) {
-        this.urlRedirectionService = urlRedirectionService;
+    public RedirectController(UrlMappingRepository repository) {
+        this.repository = repository;
     }
 
-    @GetMapping("/r/{shortCode}")
-public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
+   @GetMapping("/{shortCode}")
+public void redirect(
+        @PathVariable String shortCode,
+        HttpServletResponse response
+) throws IOException {
 
-    String originalUrl = urlRedirectionService.getOriginalUrl(shortCode);
+    UrlMapping mapping = repository.findByShortCode(shortCode)
+            .orElseThrow(() -> new RuntimeException("Short URL not found"));
 
-    if (originalUrl == null) {
-        return ResponseEntity.notFound().build();
-    }
+    // ✅ increment click count
+    mapping.setClickCount(
+            mapping.getClickCount() == null ? 1 : mapping.getClickCount() + 1
+    );
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setLocation(URI.create(originalUrl));
+    repository.save(mapping); // UPDATE happens here
 
-    return new ResponseEntity<>(headers, HttpStatus.FOUND);
+    response.setStatus(HttpServletResponse.SC_FOUND); // 302
+    response.sendRedirect(mapping.getOriginalUrl());
 }
 }

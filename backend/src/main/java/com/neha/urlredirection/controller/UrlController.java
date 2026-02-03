@@ -2,23 +2,33 @@ package com.neha.urlredirection.controller;
 
 import com.neha.urlredirection.dto.CreateUrlRequest;
 import com.neha.urlredirection.dto.CreateUrlResponse;
-import com.neha.urlredirection.service.UrlService;
+import com.neha.urlredirection.model.UrlMapping;
+import com.neha.urlredirection.service.UrlMappingService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import com.neha.urlredirection.service.UrlRedirectionService;
 
 @RestController
 @RequestMapping("/api/v1/urls")
 public class UrlController {
 
-    private final UrlRedirectionService urlRedirectionService;
+    private final UrlMappingService service;
 
-    public UrlController(UrlRedirectionService urlRedirectionService) {
-        this.urlRedirectionService = urlRedirectionService;
+    @Value("${app.base-url}")
+    private String baseUrl;
+
+    public UrlController(UrlMappingService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public CreateUrlResponse createShortUrl(@RequestBody CreateUrlRequest request) {
-        String shortCode = urlRedirectionService.createShortUrl(request.getOriginalUrl());
-        return new CreateUrlResponse("http://localhost:8080/r/" + shortCode);
+    public CreateUrlResponse createShortUrl(
+            @RequestBody CreateUrlRequest request) {
+
+        UrlMapping mapping =
+                service.createShortUrl(request.getOriginalUrl());
+
+        return new CreateUrlResponse(
+                baseUrl + "/r/" + mapping.getShortCode()
+        );
     }
 }
