@@ -25,3 +25,14 @@ Long URLs are difficult to share and track. This service generates short, unique
 - UI-heavy frontend
 
 > Although the user-facing feature is URL shortening, the core system is designed as a URL redirection service, focusing on reliability, performance, and clean system design tradeoffs.
+
+
+To Run the Application :
+
+Frontend:
+> cd frontend
+> npm run dev
+
+Backend:
+> cd backend
+> .\mvnw spring-boot:run
